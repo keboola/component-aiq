@@ -1,12 +1,11 @@
 import logging
+from datetime import datetime
 from typing import Dict, List, Literal
 
 import pytz
 from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 from keboola.component.exceptions import UserException
 from dateparser import parse as parse_natural_date
-
-API_BASE_URL = "https://lab.alpineiq.com/api"
 
 class Authorization(BaseModel):
     api_key: str = Field(alias="#api_key")
@@ -64,44 +63,43 @@ class Endpoints(BaseModel):
 
 class SyncOptions(BaseModel):
     sync_mode: Literal["full_sync", "incremental_sync"] = Field(default="full_sync")
-    date_from: str = Field(default="1 hour")
+    date_from: str = Field(default="1 hour")  # natural language or "last"
     date_to: str = Field(default="now")
 
-    @staticmethod
-    def _resolve_datetime(date_str: str, state: Dict[str, str], fallback: str) -> str:
-        date_str = (date_str or fallback).strip().lower()
+    def _parse_natural_date(self, input_str: str) -> datetime:
+        date_obj = parse_natural_date(input_str, settings={"TIMEZONE": "UTC"})
+        if date_obj is None:
+            raise UserException(f"Invalid date string: '{input_str}'")
+        return date_obj.replace(tzinfo=pytz.UTC)
 
-        if date_str in {"last", "lastrun", "last run", "last_run"}:
+    def resolved_date_from(self, state: Dict[str, str]) -> datetime:
+        input_value = self.date_from.strip().lower()
+
+        if input_value in {"last", "lastrun", "last_run", "last run"}:
             last_run = state.get("last_successful_run")
             if not last_run:
-                raise UserException("No previous run timestamp found in state, but 'last run' was selected.")
-            return last_run
+                raise UserException(
+                    "You used 'last run' as date_from, but no previous run state was found."
+                )
+            return self._parse_natural_date(last_run)
 
-        date_obj = parse_natural_date(date_str, settings={"TIMEZONE": "UTC"})
-        if date_obj is None:
-            raise UserException(f"Invalid date string: '{date_str}'")
+        return self._parse_natural_date(input_value)
 
-        date_obj = date_obj.replace(tzinfo=pytz.UTC)
-        return date_obj.strftime("%Y-%m-%dT%H:%M:%SZ")
+    def resolved_date_to(self) -> datetime:
+        return self._parse_natural_date(self.date_to.strip().lower())
 
-    def resolved_date_from(self, state: Dict[str, str], fallback: str = "1 hour") -> str:
-        return self._resolve_datetime(self.date_from, state, fallback)
+    def date_range_unix(self, state: Dict[str, str]) -> tuple[int, int]:
+        """
+        Returns the (from, to) timestamps as UNIX ints in UTC.
+        Also performs validation: from <= to
+        """
+        from_dt = self.resolved_date_from(state)
+        to_dt = self.resolved_date_to()
 
-    def resolved_date_to(self, state: Dict[str, str], fallback: str = "now") -> str:
-        return self._resolve_datetime(self.date_to, state, fallback)
+        if from_dt > to_dt:
+            raise UserException("date_from cannot be after date_to.")
 
-    def resolved_date_range_unix(self, state: Dict[str, str]) -> Dict[str, int]:
-        """Returns date_from and date_to as UNIX timestamps in UTC."""
-        from_str = self.resolved_date_from(state)
-        to_str = self.resolved_date_to(state)
-
-        from_dt = parse_natural_date(from_str, settings={"TIMEZONE": "UTC"}).replace(tzinfo=pytz.UTC)
-        to_dt = parse_natural_date(to_str, settings={"TIMEZONE": "UTC"}).replace(tzinfo=pytz.UTC)
-
-        return {
-            "date_from_unix": int(from_dt.timestamp()),
-            "date_to_unix": int(to_dt.timestamp()),
-        }
+        return int(from_dt.timestamp()), int(to_dt.timestamp())
 
 class Configuration(BaseModel):
     authorization: Authorization
