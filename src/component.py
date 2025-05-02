@@ -26,6 +26,16 @@ class Component(ComponentBase):
         api_client = APIClient(config, state)
         new_state = {}
 
+        if config.endpoints.contacts:
+            logging.info("Fetching contacts...")
+            write_output_table_if_data(
+                self,
+                name="contacts",
+                records=api_client.get_contacts(),
+                primary_key=["contactID"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
         if config.endpoints.contact_adjustments:
             logging.info("Fetching contact adjustments...")
             write_output_table_if_data(
@@ -99,6 +109,16 @@ class Component(ComponentBase):
                 self,
                 name="campaigns",
                 records=api_client.get_campaigns(),
+                primary_key=["id"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
+        if config.endpoints.brand_products:
+            logging.info("Fetching brand products...")
+            write_output_table_if_data(
+                self,
+                name="brand_products",
+                records=api_client.get_brand_products(),
                 primary_key=["id"],
                 incremental=(config.sync_options.sync_mode == "incremental_sync")
             )

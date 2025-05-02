@@ -5,8 +5,8 @@ from typing import Dict, Generator, Any
 
 from configuration import Configuration
 
+DEFAULT_PAGE_SIZE = 100
 API_BASE_URL = "https://lab.alpineiq.com/api"
-
 
 class APIClient:
     def __init__(self, config: Configuration, state: Dict[str, str]):
@@ -18,6 +18,50 @@ class APIClient:
 
     def _get_base_url(self, version: str) -> str:
         return f"{API_BASE_URL}/{version}"
+
+    def get_contacts(self, page_size: int = DEFAULT_PAGE_SIZE) -> Generator[Dict[str, Any], None, None]:
+        """
+        Streams contacts (PIIs) using paginated endpoint.
+        Yields each contact record as-is.
+        """
+        base_url = self._get_base_url("v1.1")
+        start = 0
+
+        while True:
+            url = f"{base_url}/piis/{self.user_id}"
+            params = {"start": start, "limit": page_size}
+            logging.debug(f"Requesting contacts: start={start}, limit={page_size}")
+
+            try:
+                response = requests.get(url, headers=self.headers, params=params)
+                response.raise_for_status()
+                data = response.json()
+            except Exception as e:
+                logging.warning(f"Failed to fetch contacts at start={start}: {e}")
+                break
+
+            if not data.get("success", False):
+                logging.warning(f"API response indicates failure at start={start}: {data}")
+                break
+
+            results = data.get("data", {}).get("results")
+
+            if results is None:
+                logging.info(f"No more contacts at start={start}. Ending pagination.")
+                break
+
+            if not isinstance(results, list):
+                logging.warning(f"Unexpected contacts response structure at start={start}: {data}")
+                break
+
+            if not results:
+                logging.info(f"Empty contacts page at start={start}. Ending pagination.")
+                break
+
+            for record in results:
+                yield record
+
+            start += page_size
 
     def get_contact_adjustments(self) -> Generator[Dict[str, Any], None, None]:
         base_url = self._get_base_url("v1.1")
@@ -79,7 +123,7 @@ class APIClient:
 
             yield payload
 
-    def get_audiences(self, page_size: int = 15) -> Generator[Dict[str, Any], None, None]:
+    def get_audiences(self, page_size: int = DEFAULT_PAGE_SIZE) -> Generator[Dict[str, Any], None, None]:
         """
         Streams audience records via pagination.
         Ends when 'data' is null or an empty list.
@@ -120,6 +164,44 @@ class APIClient:
 
             for record in records:
                 yield record
+
+            start += page_size
+
+    def get_brand_products(self, page_size: int = DEFAULT_PAGE_SIZE) -> Generator[Dict[str, Any], None, None]:
+        """
+        Streams brand product records from the /api/v2/brand/products endpoint using pagination.
+        """
+        base_url = self._get_base_url("v2")
+        start = 0
+
+        while True:
+            url = f"{base_url}/brand/products"
+            params = {"start": start, "limit": page_size}
+            logging.debug(f"Requesting brand products: start={start}, limit={page_size}")
+
+            try:
+                response = requests.get(url, headers=self.headers, params=params)
+                response.raise_for_status()
+                data = response.json()
+            except Exception as e:
+                raise RuntimeError(f"Failed to fetch brand products: {e}")
+
+            if not data.get("success", False):
+                logging.warning(f"API call failed at start={start}: {json.dumps(data, indent=2)}")
+                break
+
+            results = data.get("data", {}).get("results")
+
+            if results is None:
+                logging.info("No more brand products returned. Ending pagination.")
+                break
+
+            if not isinstance(results, list):
+                logging.error("Unexpected brand product response format:\n%s", json.dumps(data, indent=2))
+                break
+
+            for item in results:
+                yield item
 
             start += page_size
 

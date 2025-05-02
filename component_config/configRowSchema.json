@@ -15,47 +15,59 @@
       },
       "propertyOrder": 1,
       "properties": {
+        "contacts": {
+          "type": "boolean",
+          "title": "Contacts (PIIs)",
+          "format": "checkbox",
+          "propertyOrder": 1
+        },
         "contact_adjustments": {
           "type": "boolean",
           "title": "Contact Adjustments",
           "format": "checkbox",
-          "propertyOrder": 1
+          "propertyOrder": 2
         },
         "contact_loyalty_points": {
           "type": "boolean",
           "title": "Contact Loyalty Points",
           "format": "checkbox",
-          "propertyOrder": 2
+          "propertyOrder": 3
         },
         "contact_loyalty_points_custom_ids": {
           "type": "boolean",
           "title": "Contact Loyalty Points (Custom IDs)",
           "format": "checkbox",
-          "propertyOrder": 3
+          "propertyOrder": 4
         },
         "audiences": {
           "type": "boolean",
           "title": "Audiences",
           "format": "checkbox",
-          "propertyOrder": 4
+          "propertyOrder": 5
         },
         "discounts": {
           "type": "boolean",
           "title": "Discounts",
           "format": "checkbox",
-          "propertyOrder": 5
+          "propertyOrder": 6
         },
         "stores": {
           "type": "boolean",
           "title": "Stores",
           "format": "checkbox",
-          "propertyOrder": 6
+          "propertyOrder": 7
         },
         "campaigns": {
           "type": "boolean",
           "title": "Campaigns",
           "format": "checkbox",
-          "propertyOrder": 7
+          "propertyOrder": 8
+        },
+        "brand_products": {
+          "type": "boolean",
+          "title": "Brand products",
+          "format": "checkbox",
+          "propertyOrder": 9
         }
       }
     },

@@ -20,6 +20,10 @@ class Authorization(BaseModel):
 
 
 class Endpoints(BaseModel):
+    contacts: bool = Field(
+        default=False,
+        description="Contacts (PIIs)"
+    ),
     contact_adjustments: bool = Field(
         default=False,
         description="Contact adjustments"
@@ -47,6 +51,10 @@ class Endpoints(BaseModel):
     campaigns: bool = Field(
         default=False,
         description="Campaigns"
+    ),
+    brand_products: bool = Field(
+        default=False,
+        description="Brand products"
     ),
     custom_contact_loyalty_points_ids: List[str] = Field(default=[])
 
