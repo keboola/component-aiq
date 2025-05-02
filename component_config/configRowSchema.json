@@ -1,1 +1,116 @@
-{}
+{
+  "type": "object",
+  "title": "AlpineIQ Data Endpoints",
+  "required": [
+    "endpoints",
+    "sync_options"
+  ],
+  "properties": {
+    "endpoints": {
+      "type": "object",
+      "title": "Endpoints",
+      "options": {
+        "section": "Endpoints",
+        "collapsed": false
+      },
+      "propertyOrder": 1,
+      "properties": {
+        "contact_adjustments": {
+          "type": "boolean",
+          "title": "Contact Adjustments",
+          "format": "checkbox",
+          "propertyOrder": 1
+        },
+        "contact_loyalty_points": {
+          "type": "boolean",
+          "title": "Contact Loyalty Points",
+          "format": "checkbox",
+          "propertyOrder": 2
+        },
+        "contact_loyalty_points_custom_ids": {
+          "type": "boolean",
+          "title": "Contact Loyalty Points (Custom IDs)",
+          "format": "checkbox",
+          "propertyOrder": 3
+        },
+        "audiences": {
+          "type": "boolean",
+          "title": "Audiences",
+          "format": "checkbox",
+          "propertyOrder": 4
+        },
+        "discounts": {
+          "type": "boolean",
+          "title": "Discounts",
+          "format": "checkbox",
+          "propertyOrder": 5
+        },
+        "stores": {
+          "type": "boolean",
+          "title": "Stores",
+          "format": "checkbox",
+          "propertyOrder": 6
+        },
+        "campaigns": {
+          "type": "boolean",
+          "title": "Campaigns",
+          "format": "checkbox",
+          "propertyOrder": 7
+        }
+      }
+    },
+    "custom_contact_loyalty_points_ids": {
+      "type": "array",
+      "title": "Custom Contact Loyalty Points IDs",
+      "items": {
+        "type": "string"
+      },
+      "format": "select",
+      "options": {
+        "tags": true,
+        "dependencies": {
+          "endpoints.contact_loyalty_points_custom_ids": true
+        }
+      },
+      "uniqueItems": true,
+      "propertyOrder": 2,
+      "description": "List of custom contact IDs for loyalty points (comma-separated or multiselect)"
+    },
+    "sync_options": {
+      "type": "object",
+      "title": "Synchronization Options",
+      "propertyOrder": 3,
+      "required": [
+        "sync_mode",
+        "date_from",
+        "date_to"
+      ],
+      "properties": {
+        "sync_mode": {
+          "type": "string",
+          "title": "Sync Mode",
+          "enum": [
+            "full_sync",
+            "incremental"
+          ],
+          "default": "full_sync",
+          "propertyOrder": 1
+        },
+        "date_from": {
+          "type": "string",
+          "title": "Date From",
+          "default": "1 month ago",
+          "description": "Start date for sync. Supports formats like '5 days ago', '1 month ago', 'yesterday', or 'last run'.",
+          "propertyOrder": 2
+        },
+        "date_to": {
+          "type": "string",
+          "title": "Date To",
+          "default": "now",
+          "description": "End date for sync. Usually set to 'now'.",
+          "propertyOrder": 3
+        }
+      }
+    }
+  }
+}

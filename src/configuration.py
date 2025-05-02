@@ -78,7 +78,7 @@ class Endpoints(BaseModel):
 
 class SyncOptions(BaseModel):
     sync_mode: Literal["full_sync", "incremental_sync"] = Field(default="full_sync")
-    date_from: str = Field(default="1 hour")  # natural language or "last"
+    date_from: str = Field(default="1 month ago")  # natural language or "last"
     date_to: str = Field(default="now")
 
     def _parse_natural_date(self, input_str: str) -> datetime:
