@@ -8,6 +8,7 @@ from configuration import Configuration
 DEFAULT_PAGE_SIZE = 100
 API_BASE_URL = "https://lab.alpineiq.com/api"
 
+
 class APIClient:
     def __init__(self, config: Configuration, state: Dict[str, str]):
         self.config = config
