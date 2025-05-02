@@ -1,17 +1,16 @@
 """
 AIQ Extractor Component main class.
-
 """
-import csv
 from datetime import datetime, UTC
 import logging
+from pathlib import Path
 
 from keboola.component.base import ComponentBase
 from keboola.component.exceptions import UserException
 
 from configuration import Configuration
 from api_client import APIClient
-from src.utils import write_output_table_if_data
+from utils import write_output_table_if_data, extract_contact_ids_from_csv
 
 
 class Component(ComponentBase):
@@ -35,6 +34,73 @@ class Component(ComponentBase):
                 name="contact_adjustments",
                 records=api_client.get_contact_adjustments(),
                 primary_key=["cntID"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
+        if config.endpoints.contact_loyalty_points:
+            contact_ids = extract_contact_ids_from_csv(
+                Path(self.configuration.data_dir) / "out" / "tables" / "contact_adjustments.csv"
+            )
+
+            write_output_table_if_data(
+                self,
+                name="contact_loyalty_points",
+                records=api_client.get_loyalty_points_for_contacts(contact_ids),
+                primary_key=["contactID"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
+        if config.endpoints.contact_loyalty_points_custom_ids:
+            contact_ids = config.endpoints.custom_contact_loyalty_points_ids
+
+            logging.info(f"Syncing loyalty points for {len(contact_ids)} custom contact IDs...")
+
+            write_output_table_if_data(
+                self,
+                name="contact_loyalty_points",
+                records=api_client.get_loyalty_points_for_contacts(contact_ids),
+                primary_key=["contactID"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
+        if config.endpoints.audiences:
+            logging.info("Fetching audiences...")
+
+            write_output_table_if_data(
+                self,
+                name="audiences",
+                records=api_client.get_audiences(),
+                primary_key=["id"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
+        if config.endpoints.discounts:
+            logging.info("Fetching discount data...")
+            write_output_table_if_data(
+                self,
+                name="discounts",
+                records=api_client.get_discounts(),
+                primary_key=["id"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
+        if config.endpoints.stores:
+            logging.info("Fetching store data...")
+            write_output_table_if_data(
+                self,
+                name="stores",
+                records=api_client.get_stores(),
+                primary_key=["id"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
+        if config.endpoints.campaigns:
+            logging.info("Fetching campaigns...")
+            write_output_table_if_data(
+                self,
+                name="campaigns",
+                records=api_client.get_campaigns(),
+                primary_key=["id"],
                 incremental=(config.sync_options.sync_mode == "incremental_sync")
             )
 

@@ -48,6 +48,21 @@ class Endpoints(BaseModel):
     ),
     custom_contact_loyalty_points_ids: List[str] = Field(default=[])
 
+    @model_validator(mode="before")
+    @classmethod
+    def correct_invalid_combinations(cls, values: Dict) -> Dict:
+        has_auto = values.get("contact_loyalty_points", False)
+        has_manual = values.get("contact_loyalty_points_custom_ids", False)
+
+        if has_auto and has_manual:
+            logging.warning(
+                "Both 'contact_loyalty_points' and 'contact_loyalty_points_custom_ids' were set to True. "
+                "Defaulting to 'contact_loyalty_points_custom_ids = False'."
+            )
+            values["contact_loyalty_points_custom_ids"] = False
+
+        return values
+
     @model_validator(mode='after')
     def validate_dependencies(cls, model):
         if not model.contact_loyalty_points_custom_ids and model.custom_contact_loyalty_points_ids:
