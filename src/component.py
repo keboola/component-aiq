@@ -21,7 +21,6 @@ class Component(ComponentBase):
         run_time = datetime.now(UTC)
         run_time_str = run_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-
         config = Configuration(**self.configuration.parameters)
         state = self.get_state_file()
         api_client = APIClient(config, state)

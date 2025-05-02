@@ -6,6 +6,7 @@ from typing import Generator, Dict
 
 from keboola.component import UserException
 
+
 def extract_contact_ids_from_csv(file_path: str | Path) -> list[str]:
     """
     Extracts unique contact IDs from a CSV column `cntID`.
@@ -21,7 +22,14 @@ def extract_contact_ids_from_csv(file_path: str | Path) -> list[str]:
         raise UserException(f"Missing required file: {file_path}")
     return list(contact_ids)
 
-def write_output_table_if_data(self, name: str, records: Generator[Dict, None, None], primary_key: list[str], incremental: bool) -> bool:
+
+def write_output_table_if_data(
+    self,
+    name: str,
+    records: Generator[Dict, None, None],
+    primary_key: list[str],
+    incremental: bool
+) -> bool:
     """
     Writes output CSV and manifest if records are present.
     Ensures all keys are included even if inconsistent across records.

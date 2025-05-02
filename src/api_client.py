@@ -7,6 +7,7 @@ from configuration import Configuration
 
 API_BASE_URL = "https://lab.alpineiq.com/api"
 
+
 class APIClient:
     def __init__(self, config: Configuration, state: Dict[str, str]):
         self.config = config
@@ -43,7 +44,6 @@ class APIClient:
 
         for item in items:
             yield item
-
 
     def get_loyalty_points_for_contacts(
             self, contact_ids: list[str]
@@ -149,7 +149,6 @@ class APIClient:
 
         for item in items:
             yield item
-
 
     def get_stores(self) -> Generator[Dict[str, Any], None, None]:
         """

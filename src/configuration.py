@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, ValidationError, field_validator, model_v
 from keboola.component.exceptions import UserException
 from dateparser import parse as parse_natural_date
 
+
 class Authorization(BaseModel):
     api_key: str = Field(alias="#api_key")
     user_id: str
@@ -16,6 +17,7 @@ class Authorization(BaseModel):
         if not value.strip():
             raise ValueError(f"Field '{info.field_name}' cannot be empty")
         return value
+
 
 class Endpoints(BaseModel):
     contact_adjustments: bool = Field(
@@ -76,6 +78,7 @@ class Endpoints(BaseModel):
     def as_dict(self) -> Dict[str, bool]:
         return self.model_dump()
 
+
 class SyncOptions(BaseModel):
     sync_mode: Literal["full_sync", "incremental_sync"] = Field(default="full_sync")
     date_from: str = Field(default="1 month ago")  # natural language or "last"
@@ -115,6 +118,7 @@ class SyncOptions(BaseModel):
             raise UserException("date_from cannot be after date_to.")
 
         return int(from_dt.timestamp()), int(to_dt.timestamp())
+
 
 class Configuration(BaseModel):
     authorization: Authorization
