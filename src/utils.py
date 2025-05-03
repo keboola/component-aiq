@@ -68,4 +68,5 @@ def write_output_table_if_data(
 
     logging.info(f"Dataset '{name}' downloaded. Writing manifest...")
     self.write_manifest(table_def)
+
     return True

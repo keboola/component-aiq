@@ -1,1 +1,1 @@
-https://github.com/keboola/component-turvo/blob/master/LICENSE.md
+https://github.com/keboola/component-aiq/blob/master/LICENSE.md
