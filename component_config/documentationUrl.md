@@ -1,0 +1,1 @@
+https://github.com/keboola/component-aiq/blob/master/README.md

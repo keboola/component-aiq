@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "title": "AlpineIQ Extractor Configuration",
+  "required": ["authorization"],
+  "properties": {
+    "authorization": {
+      "type": "object",
+      "title": "Authorization",
+      "propertyOrder": 1,
+      "required": ["#api_key", "user_id"],
+      "options": {
+        "section": "Authorization",
+        "collapsed": false
+      },
+      "properties": {
+        "#api_key": {
+          "type": "string",
+          "title": "API Key",
+          "format": "password",
+          "propertyOrder": 1
+        },
+        "user_id": {
+          "type": "string",
+          "title": "User ID",
+          "propertyOrder": 2
+        }
+      }
+    },
+    "debug": {
+      "type": "boolean",
+      "title": "Enable Debug Mode",
+      "default": false,
+      "propertyOrder": 2
+    }
+  }
+}
+

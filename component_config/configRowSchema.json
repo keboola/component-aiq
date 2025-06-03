@@ -1,0 +1,186 @@
+{
+  "type": "object",
+  "title": "AlpineIQ Data Endpoints",
+  "required": [
+    "endpoints",
+    "sync_options"
+  ],
+  "properties": {
+    "endpoints": {
+      "type": "object",
+      "title": "Endpoints",
+      "options": {
+        "section": "Endpoints",
+        "collapsed": false
+      },
+      "propertyOrder": 1,
+      "properties": {
+        "contact_list": {
+          "type": "boolean",
+          "title": "Contact List (PIIs)",
+          "format": "checkbox",
+          "propertyOrder": 1
+        },
+        "contact_details": {
+          "type": "boolean",
+          "title": "Contact Details (PIIs)",
+          "format": "checkbox",
+          "propertyOrder": 2
+        },
+        "contact_details_custom_ids": {
+          "type": "boolean",
+          "title": "Contact Details by Custom IDs (PIIs)",
+          "format": "checkbox",
+          "propertyOrder": 3
+        },
+        "contact_adjustments": {
+          "type": "boolean",
+          "title": "Contact Adjustments",
+          "format": "checkbox",
+          "propertyOrder": 4
+        },
+        "contact_loyalty_points": {
+          "type": "boolean",
+          "title": "Contact Loyalty Points",
+          "format": "checkbox",
+          "propertyOrder": 5
+        },
+        "contact_loyalty_points_custom_ids": {
+          "type": "boolean",
+          "title": "Contact Loyalty Points (Custom IDs)",
+          "format": "checkbox",
+          "propertyOrder": 6
+        },
+        "audiences": {
+          "type": "boolean",
+          "title": "Audiences",
+          "format": "checkbox",
+          "propertyOrder": 7
+        },
+        "discounts": {
+          "type": "boolean",
+          "title": "Discounts",
+          "format": "checkbox",
+          "propertyOrder": 8
+        },
+        "stores": {
+          "type": "boolean",
+          "title": "Stores",
+          "format": "checkbox",
+          "propertyOrder": 9
+        },
+        "campaigns": {
+          "type": "boolean",
+          "title": "Campaigns",
+          "format": "checkbox",
+          "propertyOrder": 10
+        },
+        "campaign_stats": {
+          "type": "boolean",
+          "title": "Campaign Stats",
+          "format": "checkbox",
+          "propertyOrder": 11
+        },
+        "campaign_stats_custom_ids": {
+          "type": "boolean",
+          "title": "Campaign Stats by Custom IDs",
+          "format": "checkbox",
+          "propertyOrder": 12
+        },
+        "brand_products": {
+          "type": "boolean",
+          "title": "Brand Products",
+          "format": "checkbox",
+          "propertyOrder": 13
+        }
+      }
+    },
+    "custom_contact_details_ids": {
+      "type": "array",
+      "title": "Custom Contact Detail IDs",
+      "items": {
+        "type": "string"
+      },
+      "format": "select",
+      "options": {
+        "tags": true,
+        "dependencies": {
+          "endpoints.contact_details_custom_ids": true
+        }
+      },
+      "uniqueItems": true,
+      "propertyOrder": 2,
+      "description": "List of custom contact IDs for contact details (comma-separated or multiselect)"
+    },
+    "custom_contact_loyalty_points_ids": {
+      "type": "array",
+      "title": "Custom Contact Loyalty Points IDs",
+      "items": {
+        "type": "string"
+      },
+      "format": "select",
+      "options": {
+        "tags": true,
+        "dependencies": {
+          "endpoints.contact_loyalty_points_custom_ids": true
+        }
+      },
+      "uniqueItems": true,
+      "propertyOrder": 3,
+      "description": "List of custom contact IDs for loyalty points (comma-separated or multiselect)"
+    },
+    "custom_campaign_stats_ids": {
+      "type": "array",
+      "title": "Custom Campaign Stats IDs",
+      "items": {
+        "type": "string"
+      },
+      "format": "select",
+      "options": {
+        "tags": true,
+        "dependencies": {
+          "endpoints.campaign_stats_custom_ids": true
+        }
+      },
+      "uniqueItems": true,
+      "propertyOrder": 4,
+      "description": "List of custom campaign IDs for campaign stats (comma-separated or multiselect)"
+    },
+    "sync_options": {
+      "type": "object",
+      "title": "Synchronization Options",
+      "propertyOrder": 5,
+      "required": [
+        "sync_mode",
+        "date_from",
+        "date_to"
+      ],
+      "properties": {
+        "sync_mode": {
+          "type": "string",
+          "title": "Sync Mode",
+          "enum": [
+            "full_sync",
+            "incremental_sync"
+          ],
+          "default": "full_sync",
+          "propertyOrder": 1
+        },
+        "date_from": {
+          "type": "string",
+          "title": "Date From",
+          "default": "1 month ago",
+          "description": "Start date for sync. Supports formats like '5 days ago', '1 month ago', 'yesterday', or 'last run'.",
+          "propertyOrder": 2
+        },
+        "date_to": {
+          "type": "string",
+          "title": "Date To",
+          "default": "now",
+          "description": "End date for sync. Usually set to 'now'.",
+          "propertyOrder": 3
+        }
+      }
+    }
+  }
+}
