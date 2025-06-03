@@ -15,61 +15,102 @@
       },
       "propertyOrder": 1,
       "properties": {
-        "contacts": {
+        "contact_list": {
           "type": "boolean",
-          "title": "Contacts (PIIs)",
+          "title": "Contact List (PIIs)",
           "format": "checkbox",
           "propertyOrder": 1
+        },
+        "contact_details": {
+          "type": "boolean",
+          "title": "Contact Details (PIIs)",
+          "format": "checkbox",
+          "propertyOrder": 2
+        },
+        "contact_details_custom_ids": {
+          "type": "boolean",
+          "title": "Contact Details by Custom IDs (PIIs)",
+          "format": "checkbox",
+          "propertyOrder": 3
         },
         "contact_adjustments": {
           "type": "boolean",
           "title": "Contact Adjustments",
           "format": "checkbox",
-          "propertyOrder": 2
+          "propertyOrder": 4
         },
         "contact_loyalty_points": {
           "type": "boolean",
           "title": "Contact Loyalty Points",
           "format": "checkbox",
-          "propertyOrder": 3
+          "propertyOrder": 5
         },
         "contact_loyalty_points_custom_ids": {
           "type": "boolean",
           "title": "Contact Loyalty Points (Custom IDs)",
           "format": "checkbox",
-          "propertyOrder": 4
+          "propertyOrder": 6
         },
         "audiences": {
           "type": "boolean",
           "title": "Audiences",
           "format": "checkbox",
-          "propertyOrder": 5
+          "propertyOrder": 7
         },
         "discounts": {
           "type": "boolean",
           "title": "Discounts",
           "format": "checkbox",
-          "propertyOrder": 6
+          "propertyOrder": 8
         },
         "stores": {
           "type": "boolean",
           "title": "Stores",
           "format": "checkbox",
-          "propertyOrder": 7
+          "propertyOrder": 9
         },
         "campaigns": {
           "type": "boolean",
           "title": "Campaigns",
           "format": "checkbox",
-          "propertyOrder": 8
+          "propertyOrder": 10
+        },
+        "campaign_stats": {
+          "type": "boolean",
+          "title": "Campaign Stats",
+          "format": "checkbox",
+          "propertyOrder": 11
+        },
+        "campaign_stats_custom_ids": {
+          "type": "boolean",
+          "title": "Campaign Stats by Custom IDs",
+          "format": "checkbox",
+          "propertyOrder": 12
         },
         "brand_products": {
           "type": "boolean",
-          "title": "Brand products",
+          "title": "Brand Products",
           "format": "checkbox",
-          "propertyOrder": 9
+          "propertyOrder": 13
         }
       }
+    },
+    "custom_contact_details_ids": {
+      "type": "array",
+      "title": "Custom Contact Detail IDs",
+      "items": {
+        "type": "string"
+      },
+      "format": "select",
+      "options": {
+        "tags": true,
+        "dependencies": {
+          "endpoints.contact_details_custom_ids": true
+        }
+      },
+      "uniqueItems": true,
+      "propertyOrder": 2,
+      "description": "List of custom contact IDs for contact details (comma-separated or multiselect)"
     },
     "custom_contact_loyalty_points_ids": {
       "type": "array",
@@ -85,13 +126,30 @@
         }
       },
       "uniqueItems": true,
-      "propertyOrder": 2,
+      "propertyOrder": 3,
       "description": "List of custom contact IDs for loyalty points (comma-separated or multiselect)"
+    },
+    "custom_campaign_stats_ids": {
+      "type": "array",
+      "title": "Custom Campaign Stats IDs",
+      "items": {
+        "type": "string"
+      },
+      "format": "select",
+      "options": {
+        "tags": true,
+        "dependencies": {
+          "endpoints.campaign_stats_custom_ids": true
+        }
+      },
+      "uniqueItems": true,
+      "propertyOrder": 4,
+      "description": "List of custom campaign IDs for campaign stats (comma-separated or multiselect)"
     },
     "sync_options": {
       "type": "object",
       "title": "Synchronization Options",
-      "propertyOrder": 3,
+      "propertyOrder": 5,
       "required": [
         "sync_mode",
         "date_from",
@@ -103,7 +161,7 @@
           "title": "Sync Mode",
           "enum": [
             "full_sync",
-            "incremental"
+            "incremental_sync"
           ],
           "default": "full_sync",
           "propertyOrder": 1

@@ -7,7 +7,23 @@ from typing import Generator, Dict
 from keboola.component import UserException
 
 
-def extract_contact_ids_from_csv(file_path: str | Path) -> list[str]:
+def extract_contact_ids_from_contact_list_csv(file_path: str | Path) -> list[str]:
+    """
+    Extracts unique contact IDs from a CSV column `contactID`.
+    """
+    contact_ids = set()
+    try:
+        with open(str(file_path), mode="r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if "contactID" in row and row["contactID"]:
+                    contact_ids.add(row["contactID"])
+    except FileNotFoundError:
+        raise UserException(f"Missing required file: {file_path}")
+    return list(contact_ids)
+
+
+def extract_contact_ids_from_contact_adjustments_csv(file_path: str | Path) -> list[str]:
     """
     Extracts unique contact IDs from a CSV column `cntID`.
     """
@@ -18,6 +34,22 @@ def extract_contact_ids_from_csv(file_path: str | Path) -> list[str]:
             for row in reader:
                 if "cntID" in row and row["cntID"]:
                     contact_ids.add(row["cntID"])
+    except FileNotFoundError:
+        raise UserException(f"Missing required file: {file_path}")
+    return list(contact_ids)
+
+
+def extract_campaign_ids_from_campaign_list_csv(file_path: str | Path) -> list[str]:
+    """
+    Extracts unique campaign IDs from a CSV column `id`.
+    """
+    contact_ids = set()
+    try:
+        with open(str(file_path), mode="r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if "id" in row and row["id"]:
+                    contact_ids.add(row["id"])
     except FileNotFoundError:
         raise UserException(f"Missing required file: {file_path}")
     return list(contact_ids)

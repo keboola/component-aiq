@@ -20,9 +20,9 @@ class APIClient:
     def _get_base_url(self, version: str) -> str:
         return f"{API_BASE_URL}/{version}"
 
-    def get_contacts(self, page_size: int = DEFAULT_PAGE_SIZE) -> Generator[Dict[str, Any], None, None]:
+    def get_contact_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Generator[Dict[str, Any], None, None]:
         """
-        Streams contacts (PIIs) using paginated endpoint.
+        Streams contact list (PIIs) using paginated endpoint.
         Yields each contact record as-is.
         """
         base_url = self._get_base_url("v1.1")
@@ -63,6 +63,31 @@ class APIClient:
                 yield record
 
             start += page_size
+
+    def get_contact_details_by_custom_ids(self, contact_ids: list[str]) -> Generator[Dict[str, Any], None, None]:
+        """
+        Fetches individual contact details by customer ID.
+        """
+        base_url = self._get_base_url("v1.1")
+        for contact_id in contact_ids:
+            url = f"{base_url}/piis/{self.user_id}/{contact_id}"
+            logging.debug(f"Requesting contact detail for custom ID: {contact_id}")
+
+            try:
+                response = requests.get(url, headers=self.headers)
+                response.raise_for_status()
+                data = response.json()
+            except Exception as e:
+                logging.warning(f"Failed request for contact {contact_id}: {e}")
+                continue
+
+            if not data.get("success", False):
+                logging.warning(f"API call failed for contact {contact_id}: {json.dumps(data, indent=2)}")
+                continue
+
+            result = data.get("data")
+            if result:
+                yield result
 
     def get_contact_adjustments(self) -> Generator[Dict[str, Any], None, None]:
         base_url = self._get_base_url("v1.1")
@@ -287,3 +312,29 @@ class APIClient:
 
         for item in items:
             yield item
+
+    def get_campaign_stats_by_ids(self, campaign_ids: list[str]) -> Generator[Dict[str, Any], None, None]:
+        """
+        Fetches campaign stats by campaign ID.
+        """
+        base_url = self._get_base_url("v2")
+        for campaign_id in campaign_ids:
+            url = f"{base_url}/campaign/stats/{campaign_id}"
+            logging.debug(f"Requesting campaign stats for ID: {campaign_id}")
+
+            try:
+                response = requests.get(url, headers=self.headers)
+                response.raise_for_status()
+                data = response.json()
+            except Exception as e:
+                logging.warning(f"Failed to fetch campaign stats for {campaign_id}: {e}")
+                continue
+
+            if not data.get("success", False):
+                logging.warning(f"API call failed for campaign {campaign_id}: {json.dumps(data, indent=2)}")
+                continue
+
+            result = data.get("data")
+            if result and isinstance(result, dict):
+                result["id"] = campaign_id
+                yield result

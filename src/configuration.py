@@ -20,66 +20,114 @@ class Authorization(BaseModel):
 
 
 class Endpoints(BaseModel):
-    contacts: bool = Field(
+    contact_list: bool = Field(
         default=False,
-        description="Contacts (PIIs)"
-    ),
+        description="Contact List (PIIs)"
+    )
+    contact_details: bool = Field(
+        default=False,
+        description="Contact Details (PIIs)"
+    )
+    contact_details_custom_ids: bool = Field(
+        default=False,
+        description="Contact Details by Custom IDs (PIIs)"
+    )
     contact_adjustments: bool = Field(
         default=False,
         description="Contact adjustments"
-    ),
+    )
     contact_loyalty_points: bool = Field(
         default=False,
         description="Contact loyalty points"
-    ),
+    )
     contact_loyalty_points_custom_ids: bool = Field(
         default=False,
-        description="Contact loyalty points by custom ids"
-    ),
+        description="Contact loyalty points by Custom IDs"
+    )
     audiences: bool = Field(
         default=False,
         description="Audiences"
-    ),
+    )
     discounts: bool = Field(
         default=False,
         description="Discounts"
-    ),
+    )
     stores: bool = Field(
         default=False,
         description="Stores"
-    ),
+    )
     campaigns: bool = Field(
         default=False,
         description="Campaigns"
-    ),
+    )
+    campaign_stats: bool = Field(
+        default=False,
+        description="Campaign Stats"
+    )
+    campaign_stats_custom_ids: bool = Field(
+        default=False,
+        description="Campaign Stats by Custom IDs"
+    )
     brand_products: bool = Field(
         default=False,
         description="Brand products"
-    ),
+    )
+
+    custom_contact_details_ids: List[str] = Field(default=[])
     custom_contact_loyalty_points_ids: List[str] = Field(default=[])
+    custom_campaign_stats_ids: List[str] = Field(default=[])
 
     @model_validator(mode="before")
     @classmethod
     def correct_invalid_combinations(cls, values: Dict) -> Dict:
-        has_auto = values.get("contact_loyalty_points", False)
-        has_manual = values.get("contact_loyalty_points_custom_ids", False)
-
-        if has_auto and has_manual:
+        if values.get("contact_loyalty_points") and values.get("contact_loyalty_points_custom_ids"):
             logging.warning(
                 "Both 'contact_loyalty_points' and 'contact_loyalty_points_custom_ids' were set to True. "
                 "Defaulting to 'contact_loyalty_points_custom_ids = False'."
             )
             values["contact_loyalty_points_custom_ids"] = False
 
+        if values.get("contact_details"):
+            values["contact_list"] = True
+            values["custom_contact_details_ids"] = []
+        if values.get("contact_details_custom_ids"):
+            values["contact_details"] = False
+
+        if values.get("campaign_stats"):
+            values["campaigns"] = True
+            values["custom_campaign_stats_ids"] = []
+        if values.get("campaign_stats_custom_ids"):
+            values["campaign_stats"] = False
+
         return values
 
-    @model_validator(mode='after')
+    @model_validator(mode="after")
     def validate_dependencies(cls, model):
         if not model.contact_loyalty_points_custom_ids and model.custom_contact_loyalty_points_ids:
             raise ValueError(
                 "Field 'custom_contact_loyalty_points_ids' must be empty when "
                 "'contact_loyalty_points_custom_ids' is False."
             )
+        if not model.contact_details_custom_ids and model.custom_contact_details_ids:
+            raise ValueError(
+                "Field 'custom_contact_details_ids' must be empty when "
+                "'contact_details_custom_ids' is False."
+            )
+        if not model.campaign_stats_custom_ids and model.custom_campaign_stats_ids:
+            raise ValueError(
+                "Field 'custom_campaign_stats_ids' must be empty when "
+                "'campaign_stats_custom_ids' is False."
+            )
+
+        if model.contact_details_custom_ids and model.contact_details:
+            raise ValueError(
+                "Cannot enable both 'contact_details' and 'contact_details_custom_ids'."
+            )
+        if model.campaign_stats_custom_ids and model.campaign_stats:
+            raise ValueError(
+                "Cannot enable both 'campaign_stats' and 'campaign_stats_custom_ids'."
+            )
+
         return model
 
     @property

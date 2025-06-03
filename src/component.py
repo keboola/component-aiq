@@ -10,7 +10,12 @@ from keboola.component.exceptions import UserException
 
 from configuration import Configuration
 from api_client import APIClient
-from utils import write_output_table_if_data, extract_contact_ids_from_csv
+from utils import (
+    write_output_table_if_data,
+    extract_contact_ids_from_contact_list_csv,
+    extract_campaign_ids_from_campaign_list_csv,
+    extract_contact_ids_from_contact_adjustments_csv
+)
 
 
 class Component(ComponentBase):
@@ -26,12 +31,38 @@ class Component(ComponentBase):
         api_client = APIClient(config, state)
         new_state = {}
 
-        if config.endpoints.contacts:
-            logging.info("Fetching contacts...")
+        if config.endpoints.contact_list:
+            logging.info("Fetching contact list...")
             write_output_table_if_data(
                 self,
-                name="contacts",
-                records=api_client.get_contacts(),
+                name="contact_list",
+                records=api_client.get_contact_list(),
+                primary_key=["contactID"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
+        if config.endpoints.contact_details:
+            contact_ids = extract_contact_ids_from_contact_list_csv(
+                Path(self.configuration.data_dir) / "out" / "tables" / "contact_list.csv"
+            )
+            logging.info("Fetching contact details list...")
+
+            write_output_table_if_data(
+                self,
+                name="contact_details",
+                records=api_client.get_contact_details_by_custom_ids(contact_ids),
+                primary_key=["contactID"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
+        if config.endpoints.contact_details_custom_ids:
+            contact_ids = config.endpoints.custom_contact_details_ids
+            logging.info(f"Syncing contact details with {len(contact_ids)} custom contact IDs...")
+
+            write_output_table_if_data(
+                self,
+                name="contact_details",
+                records=api_client.get_contact_details_by_custom_ids(contact_ids),
                 primary_key=["contactID"],
                 incremental=(config.sync_options.sync_mode == "incremental_sync")
             )
@@ -47,7 +78,7 @@ class Component(ComponentBase):
             )
 
         if config.endpoints.contact_loyalty_points:
-            contact_ids = extract_contact_ids_from_csv(
+            contact_ids = extract_contact_ids_from_contact_adjustments_csv(
                 Path(self.configuration.data_dir) / "out" / "tables" / "contact_adjustments.csv"
             )
 
@@ -109,6 +140,32 @@ class Component(ComponentBase):
                 self,
                 name="campaigns",
                 records=api_client.get_campaigns(),
+                primary_key=["id"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
+        if config.endpoints.campaign_stats:
+            campaign_ids = extract_campaign_ids_from_campaign_list_csv(
+                Path(self.configuration.data_dir) / "out" / "tables" / "campaigns.csv"
+            )
+            logging.info("Fetching campaign stats...")
+
+            write_output_table_if_data(
+                self,
+                name="campaign_stats",
+                records=api_client.get_campaign_stats_by_ids(campaign_ids),
+                primary_key=["id"],
+                incremental=(config.sync_options.sync_mode == "incremental_sync")
+            )
+
+        if config.endpoints.campaign_stats_custom_ids:
+            campaign_ids = config.endpoints.custom_campaign_stats_ids
+            logging.info(f"Syncing campaign stats with {len(campaign_ids)} custom campaign IDs...")
+
+            write_output_table_if_data(
+                self,
+                name="campaign_stats",
+                records=api_client.get_campaign_stats_by_ids(campaign_ids),
                 primary_key=["id"],
                 incremental=(config.sync_options.sync_mode == "incremental_sync")
             )
